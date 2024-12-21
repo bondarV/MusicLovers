@@ -1,0 +1,49 @@
+.message-display {
+    position: absolute;
+    top: 50px;
+    right: 10px;
+    height: 50px;
+    width: 150px;
+    color: white;
+    background-color: darkblue;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2), -4px -4px 10px rgba(255, 255, 255, 0.4);
+
+    .fade-out {
+        opacity: 1;
+        transition: opacity 0.5s ease-in-out;
+    }
+
+    .fade-out.fade {
+        opacity: 0;
+    }
+}
+
+.alert-area {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    p{
+        margin: 0;
+        padding: 0;
+    }
+    button{
+        font-size: 30px;
+    }
+    .errors-tab {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        justify-content: center;
+        flex-grow: 1;
+
+    }
+}
+.range-input{
+    width: 100%;
+}

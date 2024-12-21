@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Select-one
+{% endblock %}
+
+{% block content %}
+<form method="post" action="/input" class="form-register">
+    <div class="input-group mb-3">
+        <input type="text" name="musician" id="name" class="form-control" placeholder="Enter musician name" required>
+        <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="submit">Search</button>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
