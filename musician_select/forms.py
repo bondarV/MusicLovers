@@ -2,6 +2,8 @@ from idlelib.query import Query
 
 from email_validator import validate_email
 from flask_wtf import FlaskForm
+from wtforms.fields.simple import BooleanField
+
 from musician_select.models import User
 from wtforms import StringField,SubmitField,PasswordField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
@@ -34,3 +36,6 @@ class LoginForm(FlaskForm):
     email = StringField(label='Email:',validators=[DataRequired(),Email(),])
     password = PasswordField(label='Password:',validators=[DataRequired(),Length(6,30)],)
     submit = SubmitField(label='Sign in')
+
+class RecordInteractionForm(FlaskForm):
+    recording_is_added = BooleanField(label='Recording is added',validators=[DataRequired()])

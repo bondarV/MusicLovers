@@ -1,45 +1,154 @@
 {% extends 'base.html' %}
 
 {% block title %}
-1
+Musician - {{ musician.name }}
 {% endblock %}
 
 {% block content %}
 <div class="container">
-    <div class="d-flex justify-content-between my-3 row p-3 border border-3 border-dark rounded">
-        <div class="col-12 col-md-7">
-            <h3>Musician Information</h3>
-            <p>Here is some general information about the musician.</p>
+    <div class="row p-3 border border-3 border-dark rounded my-3">
+        <!-- Musician General Information -->
+        <div class="col-12 d-flex">
+            <div class="col-lg-8 mb-4">
+                <h2>{{ musician.name }}</h2>
+                <p>{{ musician.disambiguation or "No additional information available." }}</p>
+                <p><strong>Country:</strong> {{ musician.country or "Unknown" }}</p>
+                <p><strong>Type:</strong> {{ musician.type or "Not specified" }}</p>
+                {% if musician.type == 'Person' %}
+                <p><strong>Gender:</strong> {{ musician.gender or "Not specified" }}</p>
+                {% endif %}
+                <p>
+                    <strong>Rating (by API):</strong>
+                    {{ musician.rating if musician.rating is not none else "No rating available" }}
+                </p>
+                <p>
+                    <strong>Start Singing:</strong>
+                    {{ musician.start_singing or "Not specified or ongoing" }}
+                </p>
+                <p>
+                    <strong>End Singing:</strong>
+                    {{ musician.end_singing or "Not specified or ongoing" }}
+                </p>
+            </div>
+            <div class="col-lg-4 mb-4">
+                <form method="GET" action="{{ url_for('musician_display', musician_id=musician.id) }}"
+                      class="d-flex justify-content-end">
+                    <input type="hidden" name="musician" value="{{ musician.name }}">
+                    <input type="hidden" name="limit" value="{{ request.args.get('limit', 10) }}">
+
+                    <!-- Pass all filter parameters from the current URL (query string) -->
+                    <input type="hidden" name="alias" value="{{ request.args.get('alias', '') }}">
+                    <input type="hidden" name="primary_alias" value="{{ request.args.get('primary_alias', '') }}">
+                    <input type="hidden" name="area" value="{{ request.args.get('area', '') }}">
+                    <input type="hidden" name="country" value="{{ request.args.get('country', '') }}">
+                    <input type="hidden" name="gender" value="{{ request.args.get('gender', '') }}">
+                    <input type="hidden" name="type" value="{{ request.args.get('type', '') }}">
+
+                    <button type="submit" class="btn btn-primary">Return Back</button>
+                </form>
+
+            </div>
         </div>
-        <div class="col-12 col-md-5 m d-flex justify-content-end">
-            <!-- Карточки для кожного виведення musician.name -->
-            <div class="d-flex flex-column align-items-start">
-                    <div class="card mb-2" style="width: 18rem;">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ musician.name }}</h5>
-                            <p class="card-text">Some more details about the musician can go here. You can add more information as needed.</p>
-                        </div>
+
+        <!-- Genres Section -->
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Genres</h4>
+                    <ul class="list-group">
+                        {% if musician.genres %}
+                        {% for genre in musician.genres %}
+                        <li class="list-group-item">{{ genre }}</li>
+                        {% endfor %}
+                        {% else %}
+                        <li class="list-group-item">No genres available.</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Aliases Section -->
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Aliases</h4>
+                    <ul class="list-group">
+                        {% if musician.aliases %}
+                        {% for alias in musician.aliases %}
+                        <li class="list-group-item">{{ alias }}</li>
+                        {% endfor %}
+                        {% else %}
+                        <li class="list-group-item">No aliases available.</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 d-flex">
+            <!-- All Records Column -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">All Records</h4>
+                        <!-- Search Input -->
+                        <input type="text" id="search-input" data-musician-id="{{ musician.id }}"
+                               class="form-control mb-3" placeholder="Search records by title...">
+                        <ul class="list-group" id="records-list">
+                            <!-- Records list will be populated here -->
+                        </ul>
                     </div>
-                {% if musician.type == 'Person'%}
-                  <div class="card mb-2" style="width: 18rem;">
-                        <div class="card-body">
-                            <h5 class="d- card-title">{{ musician.gender }}</h5>
-                            <p class="card-text">Some more details about the musician can go here. You can add more information as needed.</p>
-                        </div>
+                </div>
+            </div>
+
+            <!-- Subscribed Records Column -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Subscribed Records</h4>
+                        <ul class="list-group" id="subscribed-records-list">
+                            {% if all_subscribed_songs %}
+                            {% for record in all_subscribed_songs %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center"
+                                id="record-{{ record.id }}">
+                                {{ record.title }}
+                                <button type="button"
+                                        data-record-id="{{record.id}}"
+                                        class="delete-subscription-btn btn btn-danger btn-sm"
+                                        aria-label="Delete subscription for {{ record.title }}">
+                                    <i class="bi bi-trash"></i> Delete
+                                </button>
+                            </li>
+                            {% endfor %}
+                            {% else %}
+                            <li class="list-group-item" id="subscription-absent">No subscribed records available.</li>
+                            {% endif %}
+                        </ul>
                     </div>
-                {%endif%}
-                  <div class="card mb-2" style="width: 18rem;">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ musician.type }}</h5>
-                            <p class="card-text">Some more details about the musician can go here. You can add more information as needed.</p>
-                        </div>
-                    </div>
-                  <div class="card mb-2" style="width: 18rem;">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ musician.country }}</h5>
-                            <p class="card-text">Some more details about the musician can go here. You can add more information as needed.</p>
-                        </div>
-                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- URLs Section -->
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">URLs</h4>
+                    <ul class="list-group">
+                        {% if musician.urls %}
+                        {% for url in musician.urls %}
+                        <li class="list-group-item">
+                            <a href="{{ url.resource }}" target="_blank" rel="noopener noreferrer">
+                                {{ url.resource }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                        {% else %}
+                        <li class="list-group-item">No URLs available.</li>
+                        {% endif %}
+                    </ul>
+                </div>
             </div>
         </div>
     </div>

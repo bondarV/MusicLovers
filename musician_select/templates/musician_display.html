@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Search-mus
+{% endblock %}
+
+{% block content %}
+<form class="my-3" method='GET' action="" class="container">
+    <input type="hidden" id="current-user-id" value="{{ current_user.id }}">
+    <div class="input-group row">
+        <input type="text" name="musician" id="musician" value="{{ musician_name }}" class="form-control"
+               placeholder="Enter musician name" required>
+        <div class="input-group-append">
+            <button id="submit-select" class="btn btn-outline-secondary" type="submit">Submit</button>
+        </div>
+        <div class="input-group-append">
+            <button id="clear-data" class="btn btn-outline-danger" type="reset">Clear Field</button>
+        </div>
+    </div>
+
+    <!-- Additional Filters -->
+    <div class="row my-3">
+        <div class="col-md-4">
+            <label for="alias">Alias:</label>
+            <input type="text" id="alias" name="alias" class="form-control" value="{{ request.args.get('alias', '') }}"
+                   placeholder="Enter alias">
+        </div>
+        <div class="col-md-4">
+            <label for="primary_alias">Primary Alias:</label>
+            <input type="text" id="primary_alias" name="primary_alias" class="form-control"
+                   value="{{ request.args.get('primary_alias', '') }}" placeholder="Enter primary alias">
+        </div>
+        <div class="col-md-4">
+            <label for="area">Area:</label>
+            <input type="text" id="area" name="area" class="form-control" value="{{ request.args.get('area', '') }}"
+                   placeholder="Enter area">
+        </div>
+    </div>
+
+    <div class="row my-3">
+        <div class="col-md-4">
+            <label for="country">Country Code:</label>
+            <input type="text" id="country" name="country" class="form-control"
+                   value="{{ request.args.get('country', '') }}" placeholder="Enter country code">
+        </div>
+        <div class="col-md-4">
+            <label for="gender">Gender:</label>
+            <select id="gender" name="gender" class="form-select">
+                <option value="">Select gender</option>
+                <option value="male" {% if request.args.get(
+                'gender') == 'male' %}selected{% endif %}>Male</option>
+                <option value="female" {% if request.args.get(
+                'gender') == 'female' %}selected{% endif %}>Female</option>
+                <option value="other" {% if request.args.get(
+                'gender') == 'other' %}selected{% endif %}>Other</option>
+                <option value="not applicable" {% if request.args.get(
+                'gender') == 'not applicable' %}selected{% endif %}>Not Applicable</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label for="type">Type:</label>
+            <select id="type" name="type" class="form-select">
+                <option value="">Select type</option>
+                <option value="person" {% if request.args.get(
+                'type') == 'person' %}selected{% endif %}>Person</option>
+                <option value="group" {% if request.args.get(
+                'type') == 'group' %}selected{% endif %}>Group</option>
+                <option value="other" {% if request.args.get(
+                'type') == 'other' %}selected{% endif %}>Other</option>
+            </select>
+
+        </div>
+    </div>
+
+    <div class="row d-flex align-items-center my-3">
+        <div class="col-auto text-center">1</div>
+        <div class="col-5"><input type="range" min="1" max="10" id="limit" name="limit" value="{{limit | default(5)}}"
+                                  class="range-input"></div>
+        <div class="col-auto text-center">10</div>
+        <div class="col-6 d-flex justify-content-center changed-stat"> {{limit | default(5)}}/10</div>
+    </div>
+</form>
+
+{% if musicians_data %}
+<div class="add-data">
+    <p>Кількість до фільтрації:{{founded_data}}</p>
+</div>
+<table id="table-for-singers" class="table table-hover table-dark mt-4">
+    <thead>
+    <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Country</th>
+        <th scope="col">Type</th>
+        <th scope="col">Options</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for musician in musicians_data %}
+    <tr>
+        <td>{{ musicians_data[musician]['musician'].name }}</td>
+        <td>{{ musicians_data[musician]['musician'].country }}</td>
+        <td>{{ musicians_data[musician]['musician'].type }}</td>
+        <td>
+            <form action="/info" method="post">
+                <button type="submit" class="btn btn-outline btn-info">More info</button>
+                <input type="hidden" value="{{musicians_data[musician]['musician'].id}}" name="musician_id">
+            </form>
+            <legend class="">Chose your attitude towards musician/s</legend>
+            <div id="toward-musician-choices">
+                <input hidden="hidden" name="user_id" value="{{ current_user.id }}">
+
+                <!-- Спостерігаєте за музикантом -->
+                <input type="checkbox" name="follow" class="user-musician-interaction"
+                       data-musician-id="{{ musicians_data[musician]['musician'].id }}"
+                       id="following_{{ musicians_data[musician]['musician'].id }}"
+                       data-reaction-value="following"
+                       {% for choice in musicians_data[musician]['choices'] %}
+                {% if choice.name == 'following' %} checked {% endif %}
+                {% endfor %}>
+                <label for="following_{{ musicians_data[musician]['musician'].id }}">Спостерігати</label>
+
+                <!-- Обожнюєте музиканта -->
+                <input type="radio" name="choices" class="user-musician-interaction"
+                       data-musician-id="{{ musicians_data[musician]['musician'].id }}"
+                       id="adoring_{{ musicians_data[musician]['musician'].id }}"
+                       data-reaction-value="adoring"
+                       {% for choice in musicians_data[musician]['choices'] %}
+                {% if choice.name == 'adoring' %} checked {% endif %}
+                {% endfor %}>
+                <label for="adoring_{{ musicians_data[musician]['musician'].id }}">Обожнювати</label>
+
+                <!-- Музикант у чорному списку -->
+                <input type="radio" name="choices" class="user-musician-interaction"
+                       data-musician-id="{{ musicians_data[musician]['musician'].id }}"
+                       id="hating_{{ musicians_data[musician]['musician'].id }}"
+                       data-reaction-value="hating"
+                       {% for choice in musicians_data[musician]['choices'] %}
+                {% if choice.name == 'hating' %} checked {% endif %}
+                {% endfor %}>
+                <label for="hating_{{ musicians_data[musician]['musician'].id }}">До чорного списку</label>
+                <button class="clear-passion"
+                        data-musician-id="{{ musicians_data[musician]['musician'].id }}" class="btn btn-danger">radio clear
+                </button>
+            </div>
+
+        </td>
+    </tr>
+    {% endfor %}
+
+    </tbody>
+</table>
+{% else %}
+<h2 class="text-danger">{{error}}</h2>
+<p>Кількість до фільтрації:{{founded_data}}</p>
+{% endif %}
+{% endblock %}

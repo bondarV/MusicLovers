@@ -9,3 +9,4 @@ load_dotenv(os.path.join(base_dir, '.env'))
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess-what'
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///' + os.path.join(base_dir, 'app.db')
+    # SQLALCHEMY_ECHO = os.getenv('SQLALCHEMY_ECHO', 'False').lower() == 'true'

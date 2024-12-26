@@ -1,8 +1,8 @@
-"""Додані два нові поля у musician
+"""Changed db demonstration
 
-Revision ID: 9e87ffae7f4f
-Revises: 66bd6ba5758c
-Create Date: 2024-12-20 22:07:39.086335
+Revision ID: 12efceca5145
+Revises: 774bd61e7f34
+Create Date: 2024-12-26 00:22:35.686874
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import mssql
 
 # revision identifiers, used by Alembic.
-revision = '9e87ffae7f4f'
-down_revision = '66bd6ba5758c'
+revision = '12efceca5145'
+down_revision = '774bd61e7f34'
 branch_labels = None
 depends_on = None
 
@@ -30,6 +30,6 @@ def downgrade():
     sa.Column('diagram_id', sa.INTEGER(), sa.Identity(always=False, start=1, increment=1), autoincrement=True, nullable=False),
     sa.Column('version', sa.INTEGER(), autoincrement=False, nullable=True),
     sa.Column('definition', mssql.VARBINARY(), autoincrement=False, nullable=True),
-    sa.PrimaryKeyConstraint('diagram_id', name='PK__sysdiagr__C2B05B6113F200C9')
+    sa.PrimaryKeyConstraint('diagram_id', name='PK__sysdiagr__C2B05B61E3EDBD56')
     )
     # ### end Alembic commands ###

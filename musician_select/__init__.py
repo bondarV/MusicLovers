@@ -14,6 +14,7 @@ app = Flask(__name__)
 
 app.config.from_object(Config)
 app.config.from_object(Config)
+# app.config.from_object(Config)
 
 metadata = MetaData(naming_convention={
     "ix": "ix_%(column_0_label)s",
@@ -25,7 +26,6 @@ metadata = MetaData(naming_convention={
 
 db = SQLAlchemy(app,metadata=metadata)
 migrate = Migrate(app, db)
-
 # app.app_context().push()
 bcrypt = Bcrypt(app)
 
